@@ -14,11 +14,49 @@
       "name": "Java Sync Driver",
       "relative_path": "docs-java/",
       "source_dir": "source/"
+    },
+    "csharp": {
+      "name": "C#/.NET Driver",
+      "relative_path": "docs-csharp/",
+      "source_dir": "source/"
+    },
+    "entityframework": {
+      "name": "Entity Framework",
+      "relative_path": "docs-entity-framework/",
+      "source_dir": "source/"
+    },
+    "kotlincoroutine": {
+      "name": "Kotlin Coroutine Driver",
+      "relative_path": "docs-kotlin/",
+      "source_dir": "source/"
+    },
+    "rust": {
+      "name": "Rust Driver",
+      "relative_path": "docs-rust/",
+      "source_dir": "source/"
+    },
+    "vsextension": {
+      "name": "MongoDB Analyzer",
+      "relative_path": "docs-visual-studio-extension/",
+      "source_dir": "source/"
+    },
+    "kafkaconnector": {
+      "name": "MongoDB Kafka Connector",
+      "relative_path": "docs-kafka-connector/",
+      "source_dir": "source/"
+    },
+    "sparkconnector": {
+      "name": "MongoDB Spark Connector",
+      "relative_path": "docs-spark-connector/",
+      "source_dir": "source/"
+    },
+    "ecosystem": {
+      "name": "MongoDB Drivers Landing Pages",
+      "relative_path": "docs-ecosystem/",
+      "source_dir": "source/"
     }
   },
 
-
-  "sourceDir": "/Users/ccho/dev/docs-node/source/",
   "maxOccurrences": 1,
   "modules": {
     "collector": {
