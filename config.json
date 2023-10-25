@@ -1,0 +1,54 @@
+{
+  "repo_base_full_path": "/Users/ccho/dev/",
+  "ignore_list": {
+    "database": "alas_data",
+    "collection": "ignore_words"
+  },
+  "docs": {
+    "nodejs": {
+      "name": "Node.js and TypeScript Driver",
+      "relative_path": "docs-node/",
+      "source_dir": "source/"
+    },
+    "javasync": {
+      "name": "Java Sync Driver",
+      "relative_path": "docs-java/",
+      "source_dir": "source/"
+    }
+  },
+
+
+  "sourceDir": "/Users/ccho/dev/docs-node/source/",
+  "maxOccurrences": 1,
+  "modules": {
+    "collector": {
+      "path": "collectors.filter_files",
+      "funcName": "run"
+    },
+    "reader": {
+      "path": "collectors.read_content",
+      "funcName": "run"
+    },
+    "tokenizer": {
+      "path": "tokenizer.tokenize_rst",
+      "funcName": "run"
+    },
+    "ignore_list_matcher": {
+      "path": "matchers.ignore_list_matcher",
+      "funcName": "run"
+    },
+    "max_occurrence_matcher": {
+      "path": "matchers.max_occurrence_matcher",
+      "funcName": "run"
+    },
+    "spell_checker": {
+      "path": "matchers.spell_checker",
+      "funcName": "run"
+    },
+    "formatter": {
+      "path": "formatters.csv_formatter",
+      "funcName": "run"
+    }
+  }
+}
+
