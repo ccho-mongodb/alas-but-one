@@ -53,7 +53,6 @@ def main():
             if len(add_words) > 0:
                 update_ops.append(UpdateOne({ 'repo_name': repo_name }, { '$addToSet': {'words': { '$each': add_words }}}, upsert=True ))
             if len(remove_words) > 0:
-                print(remove_words)
                 update_ops.append(UpdateOne({ 'repo_name': repo_name }, { '$pullAll': {'words': remove_words }} ))
 
         if len(update_ops) > 1:

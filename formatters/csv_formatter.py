@@ -13,7 +13,6 @@ def format_locations(token_locations):
             formatted_locations = "\n".join(loc_and_line)
 
     except Exception as e:
-        print(loc_and_line)
         print(e)
 
     return formatted_locations

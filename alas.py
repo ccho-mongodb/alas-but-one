@@ -14,6 +14,8 @@ def main():
     try:
         MAX_OCCURRENCE=config['maxOccurrences']
         REPO = "nodejs"
+        IGNORE_DB_NAME = config['ignore_list']['database']
+        IGNORE_COLL_NAME = config['ignore_list']['collection']
 
         # File location setup
         repo_config = config['docs'][REPO]
@@ -33,15 +35,18 @@ def main():
         # Add spellcheck data
         spell_checker = get_stage('spell_checker', config)
 
+        # Add ignore list data
+        ignore_list = get_stage('ignore_list_matcher', config)
+
         # Format output
         formatter = get_stage('formatter', config)
-
 
         candidate_files = collector(directory)
         content = reader(candidate_files)
         token_dict = tokenizer(content, REPO)
         token_dict = max_occur_matcher(token_dict, MAX_OCCURRENCE)
         spell_checker(token_dict)
+        ignore_list(token_dict, REPO, IGNORE_DB_NAME, IGNORE_COLL_NAME)
 
         formatter(token_dict.values())
 
