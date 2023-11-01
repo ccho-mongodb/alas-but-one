@@ -33,8 +33,9 @@ This app is designed for use in MongoDB documentation repositories.
 
 2. Set your MongoDB URI.
 
-   Set the value of your environment variable ``LOCAL_ATLAS_URI`` to the
-   MongoDB cluster designated for sharing ignore lists.
+   Set the value of your environment variable ``ABO_MONGO_URI`` to the
+   MongoDB cluster designated for sharing ignore lists. Ask your team if you
+   need more information.
 
 
 # Run

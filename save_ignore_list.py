@@ -2,7 +2,7 @@ import os, json, re, collections, csv
 from pymongo import MongoClient, UpdateOne
 
 def get_ignore_lists_and_collection():
-    connection_uri = os.environ['LOCAL_ATLAS_URI']
+    connection_uri = os.environ['ABO_MONGO_URI']
 
     with open('config.json') as f:
         config = json.load(f)

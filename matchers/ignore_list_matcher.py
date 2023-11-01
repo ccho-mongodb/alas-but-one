@@ -2,7 +2,7 @@ import os, json, re, collections, csv
 from pymongo import MongoClient
 
 def run(token_dict, repo, dbName, collName):
-    connection_uri = os.environ['LOCAL_ATLAS_URI']
+    connection_uri = os.environ['ABO_MONGO_URI']
 
     coll = MongoClient(connection_uri)[dbName][collName]
     result = coll.find_one({ 'repo_name': repo })
