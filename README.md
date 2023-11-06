@@ -23,7 +23,6 @@ This app is designed for use in MongoDB documentation repositories.
    Update the ``config.json`` file to set the ``repo_base_full_path`` to the 
    absolute path to the base directory that contains your docs repositories.
 
-
    The script concatenates the ``repo_base_full_path`` with the ``relative_path``
    values for each repository entry in the configuration file.
 
@@ -31,12 +30,19 @@ This app is designed for use in MongoDB documentation repositories.
    Comment out or remove the repository documents from the ``docs`` JSON object
    if you do not want to run it for those repos or have not cloned them.
 
-2. Set your MongoDB URI.
+2. Set up the ignore list.
 
+   To disable the ignore list, comment out the ``ignore_list`` stage. For
+   example:
+
+   ```python
+   # ignore_list(token_dict, cfg, MONGODB_URI, IGNORE_DB_NAME, IGNORE_COLL_NAME)
+   ```
+
+   To use the shared ignored list, make sure the stage is uncommented.
    Set the value of your environment variable ``ABO_MONGO_URI`` to the
    MongoDB cluster designated for sharing ignore lists. Ask your team if you
-   need more information.
-
+   need the credentials.
 
 # Run
 
@@ -46,8 +52,8 @@ Run the following command to start the app:
 python3 alas.py
 ```
 
-This outputs a file called ``out.csv`` that you can import into Google Sheets
-for convenient viewing and editing.
+This outputs files for each repo checked, named after the "docs" dictionary
+key. You can import these into Google Sheets for convenient viewing and editing.
 
 The output list includes the following information:
 
@@ -62,7 +68,7 @@ The output list includes the following information:
 
 If you want to persist changes to ignore column of the csv, export your
 Google Sheet to a csv file and make sure the headers are exactly the same as 
-the original ``out.csv`` file. Then, run the following script to perform the
+the original csv file. Then, run the following script to perform the
 updates:
 
 ```bash

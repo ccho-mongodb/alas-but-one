@@ -1,10 +1,11 @@
 import os, json, re, collections, csv
 from pymongo import MongoClient
 
-def run(token_dict, repo, dbName, collName):
-    connection_uri = os.environ['ABO_MONGO_URI']
+def run(token_dict, repo, connection_uri, dbName, collName):
 
-    coll = MongoClient(connection_uri)[dbName][collName]
+    client = MongoClient(connection_uri)
+
+    coll = client[dbName][collName]
     result = coll.find_one({ 'repo_name': repo })
 
     if result:

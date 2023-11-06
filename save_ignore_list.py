@@ -1,4 +1,4 @@
-import os, json, re, collections, csv
+import os, json, re, collections, csv, sys
 from pymongo import MongoClient, UpdateOne
 
 def get_ignore_lists_and_collection():
@@ -21,7 +21,9 @@ def get_ignore_lists_and_collection():
 
 def main():
 
-    csv_file = 'out.csv'
+    csv_file = sys.argv[1]
+    if len(sys.argv) < 1:
+        sys.exit("Please provide an input filename.")
 
     update_dict = collections.defaultdict(set)
 
