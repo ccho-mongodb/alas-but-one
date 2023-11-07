@@ -32,14 +32,16 @@ This app is designed for use in MongoDB documentation repositories.
 
 2. Set up the ignore list.
 
-   To disable the ignore list, comment out the ``ignore_list`` stage. For
-   example:
+   To disable the ignore list, comment out both the ``MONGODB_URI`` line and
+   ``ignore_list`` stage. For example:
 
    ```python
+   # MONGODB_URI = os.environ['ABO_MONGO_URI']
+   ...
    # ignore_list(token_dict, cfg, MONGODB_URI, IGNORE_DB_NAME, IGNORE_COLL_NAME)
    ```
 
-   To use the shared ignored list, make sure the stage is uncommented.
+   To use the shared ignored list, make sure both those lines are uncommented.
    Set the value of your environment variable ``ABO_MONGO_URI`` to the
    MongoDB cluster designated for sharing ignore lists. Ask your team if you
    need the credentials.
