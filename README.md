@@ -72,7 +72,7 @@ the original csv file. Then, run the following script to perform the
 updates:
 
 ```bash
-save_ignore_list.py
+save_ignore_list.py <csv filename>
 ```
 
 
