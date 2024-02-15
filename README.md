@@ -24,7 +24,7 @@ This app is designed for use in MongoDB documentation repositories.
 
 # Setup
 
-1. Configure your directory settings and which repos the app runs on.
+1. Configure your directory settings and which repos the app runs on in the ``config.json`` file.
 
    Update the ``config.json`` file to set the ``repo_base_full_path`` to the
    absolute path to the base directory that contains your docs repositories.
@@ -36,9 +36,9 @@ This app is designed for use in MongoDB documentation repositories.
    Comment out or remove the repository documents from the ``docs`` JSON object
    if you do not want to run it for those repos or have not cloned them.
 
-2. Set up the ignore list.
+2. If you need to enable or disable the ignore list, make the following edits to the ``alas.py`` file:
 
-   To disable the ignore list, comment out both the ``MONGODB_URI`` line and
+   Comment out both the ``MONGODB_URI`` line and
    ``ignore_list`` stage. For example:
 
    ```python
