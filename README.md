@@ -10,7 +10,13 @@ This app is designed for use in MongoDB documentation repositories.
 
 1. Clone this repo (or optionally, fork the repository and clone the fork).
 
-2. Install the required packages by running the following command:
+2. Navigate to the repo directory root:
+
+   ```
+   cd alas-but-one
+   ```
+
+3. Install the required packages by running the following command:
 
    ```
    pip3 install -r requirements.txt
