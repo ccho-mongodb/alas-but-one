@@ -52,6 +52,21 @@ This app is designed for use in MongoDB documentation repositories.
    MongoDB cluster designated for sharing ignore lists. Ask your team if you
    need the credentials.
 
+3. If you need to enable or disable the date modified modified threshold, make the following changes:
+
+   Set your GitHub API token in the "ABO_GITHUB_TOKEN" environment variable.
+
+   Set the number of days (from current) that the script should check for files
+   modified in GitHub as the value for ``modifiedDateThreshold`` in ``config.json``..
+
+   To disable this feature, comment out the ``date_threshold_matcher()`` function
+   call in ``alas.py``:
+
+   ```python
+   ...
+   # date_threshold_matcher(token_dict, MODIFIED_DAYS_AGO, repo_directory, repo_org, repo_name, GITHUB_TOKEN)
+   ```
+
 # Run
 
 Run the following command to start the app:
@@ -70,6 +85,7 @@ The output list includes the following information:
 - locations: the file paths in which the word was found (needs update to exclude full path) including the line number
 - num_occurrences: the number of times the word occurred in that repo
 - misspelled: whether the word passed the spell check
+- modified_within_threshold: whether the file was modified in GitHub within the threshold number of days (blank otherwise)
 - ignore: whether the word is on the ignore list
 
 # How to Use the Ignore List
