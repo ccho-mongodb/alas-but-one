@@ -8,56 +8,77 @@
     "nodejs": {
       "name": "Node.js and TypeScript Driver",
       "relative_path": "docs-node/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-node"
     },
     "javasync": {
       "name": "Java Sync Driver",
       "relative_path": "docs-java/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-java"
     },
     "csharp": {
       "name": "C#/.NET Driver",
       "relative_path": "docs-csharp/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-csharp"
     },
     "entityframework": {
       "name": "Entity Framework",
       "relative_path": "docs-entity-framework/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-entity-framework"
     },
     "kotlincoroutine": {
       "name": "Kotlin Coroutine Driver",
       "relative_path": "docs-kotlin/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-kotlin"
     },
     "rust": {
       "name": "Rust Driver",
       "relative_path": "docs-rust/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-rust"
     },
     "vsextension": {
       "name": "MongoDB Analyzer",
       "relative_path": "docs-visual-studio-extension/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-visual-studio-extension"
     },
     "kafkaconnector": {
       "name": "MongoDB Kafka Connector",
       "relative_path": "docs-kafka-connector/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-kafka-connector"
     },
     "sparkconnector": {
       "name": "MongoDB Spark Connector",
       "relative_path": "docs-spark-connector/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-spark-connector"
     },
     "ecosystem": {
       "name": "MongoDB Drivers Landing Pages",
       "relative_path": "docs-ecosystem/",
-      "source_dir": "source/"
+      "source_dir": "source/",
+      "repo_org": "mongodb",
+      "repo_name": "docs-ecosystem"
     }
   },
 
   "maxOccurrences": 1,
+  "modifiedDateThreshold": 120,
   "modules": {
     "collector": {
       "path": "collectors.filter_files",
@@ -69,6 +90,10 @@
     },
     "tokenizer": {
       "path": "tokenizer.tokenize_rst",
+      "funcName": "run"
+    },
+    "date_threshold_matcher": {
+      "path": "matchers.date_threshold_matcher",
       "funcName": "run"
     },
     "ignore_list_matcher": {

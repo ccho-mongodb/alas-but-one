@@ -8,4 +8,4 @@ class Token:
     locations: list[TokenLocation]
     misspelled: bool = None
     ignore: str = 'N'
-
+    in_date_range: bool = None
