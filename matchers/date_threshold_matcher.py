@@ -34,7 +34,7 @@ def get_changed_files_github(days, base_dir, repo_owner, repo_name, token):
 
             contents_data = response_contents.json()
 
-            fileset.update([base_dir + "/" + file['filename'] for file in contents_data['files']])
+            fileset.update([base_dir + file['filename'] for file in contents_data['files']])
 
         return fileset
     except Exception as e:

@@ -1,6 +1,6 @@
 import csv
 
-FIELD_NAMES = ['word', 'repo', 'locations', 'num_occurrences', 'misspelled', 'ignore']
+FIELD_NAMES = ['word', 'repo', 'locations', 'num_occurrences', 'misspelled', 'modified_within_threshold', 'ignore']
 
 def format_locations(token_locations):
 
