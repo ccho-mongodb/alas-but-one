@@ -33,4 +33,5 @@ def run(tokens, dest_file='out.csv'):
                 'locations': locations,
                 'num_occurrences': len(token.locations),
                 'misspelled': token.misspelled,
+                'modified_within_threshold': token.in_date_range,
                 'ignore': token.ignore })
