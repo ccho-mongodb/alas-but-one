@@ -1,36 +1,46 @@
 import csv
+from typing import List, Dict
+from tasks.base_task import BaseTask
+from models.token import Token
 
-FIELD_NAMES = ['word', 'repo', 'locations', 'num_occurrences', 'misspelled', 'ignore']
+class CsvFormatterTask(BaseTask):
+    def __init__(self, settings_config, repo_config):
+        super().__init__(settings_config, repo_config)
+        self.field_names = ['word', 'repo', 'locations', 'num_occurrences', 'misspelled', 'ignore']
 
-def format_locations(token_locations):
+    def run(self, tokens: Dict[str, Token]) -> str:
+        validated_tokens = self.validate_input(tokens)
 
-    formatted_locations = str()
-    try:
+        output_file = f"{self.repo_config['name']}.csv"
+
+        with open(output_file, 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=self.field_names)
+            writer.writeheader()
+
+            for token in validated_tokens.values():
+                writer.writerow({
+                    'word': token.text,
+                    'repo': token.repo,
+                    'locations': self.format_locations(token.locations),
+                    'num_occurrences': len(token.locations),
+                    'misspelled': token.misspelled,
+                    'ignore': token.ignore
+                })
+
+        return self.validate_output(output_file)
+
+    def format_locations(self, token_locations):
         if len(token_locations) == 1:
-            formatted_locations = ("%s:%d" % (token_locations[0].filename, token_locations[0].line)).rstrip()
+            return f"{token_locations[0].filename}:{token_locations[0].line}".rstrip()
         else:
-            loc_and_line = [ "%s:%d" % (x.filename, x.line) for x in token_locations ]
-            formatted_locations = "\n".join(loc_and_line)
+            return "\n".join([f"{loc.filename}:{loc.line}" for loc in token_locations])
 
-    except Exception as e:
-        print(e)
+    def validate_input(self, input_data: Dict[str, Token]) -> Dict[str, Token]:
+        if not isinstance(input_data, dict):
+            raise ValueError("Input must be a dictionary of tokens")
+        return input_data
 
-    return formatted_locations
-
-
-def run(tokens, dest_file='out.csv'):
-
-    with open(dest_file, 'w', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames = FIELD_NAMES )
-        writer.writeheader()
-
-        for token in tokens:
-            locations = format_locations(token.locations)
-
-            writer.writerow({
-                'word': token.text,
-                'repo': token.repo,
-                'locations': locations,
-                'num_occurrences': len(token.locations),
-                'misspelled': token.misspelled,
-                'ignore': token.ignore })
+    def validate_output(self, output_data: str) -> str:
+        if not isinstance(output_data, str):
+            raise TypeError("Output must be a string (file path)")
+        return output_data
