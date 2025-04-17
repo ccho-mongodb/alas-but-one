@@ -1,91 +1,49 @@
 {
-  "repo_base_full_path": "/Users/ccho/dev/",
-  "ignore_list": {
-    "database": "alas_data",
-    "collection": "ignore_words"
+  "settings": {
+    "repo_base_full_path": "/home/ccho/dev/",
+    "maxOccurrences": 1,
+    "MONGODB_URI": "mongodb://localhost:27017",
+    "ignore_list": {
+      "database": "alas_data",
+      "collection": "ignore_words"
+    }
   },
-  "docs": {
-    "nodejs": {
-      "name": "Node.js and TypeScript Driver",
-      "relative_path": "docs-node/",
-      "source_dir": "source/"
-    },
-    "javasync": {
-      "name": "Java Sync Driver",
-      "relative_path": "docs-java/",
-      "source_dir": "source/"
-    },
-    "csharp": {
-      "name": "C#/.NET Driver",
-      "relative_path": "docs-csharp/",
-      "source_dir": "source/"
-    },
-    "entityframework": {
-      "name": "Entity Framework",
-      "relative_path": "docs-entity-framework/",
-      "source_dir": "source/"
-    },
-    "kotlincoroutine": {
-      "name": "Kotlin Coroutine Driver",
-      "relative_path": "docs-kotlin/",
-      "source_dir": "source/"
-    },
-    "rust": {
-      "name": "Rust Driver",
-      "relative_path": "docs-rust/",
-      "source_dir": "source/"
-    },
-    "vsextension": {
-      "name": "MongoDB Analyzer",
-      "relative_path": "docs-visual-studio-extension/",
-      "source_dir": "source/"
-    },
-    "kafkaconnector": {
-      "name": "MongoDB Kafka Connector",
-      "relative_path": "docs-kafka-connector/",
-      "source_dir": "source/"
-    },
-    "sparkconnector": {
-      "name": "MongoDB Spark Connector",
-      "relative_path": "docs-spark-connector/",
-      "source_dir": "source/"
-    },
-    "ecosystem": {
-      "name": "MongoDB Drivers Landing Pages",
-      "relative_path": "docs-ecosystem/",
+  "repositories": {
+    "golang": {
+      "name": "Golang Driver Docs",
+      "relative_path": "docs-golang/",
       "source_dir": "source/"
     }
   },
 
-  "maxOccurrences": 1,
   "modules": {
     "collector": {
       "path": "collectors.filter_files",
-      "funcName": "run"
+      "className": "CollectorTask"
     },
     "reader": {
       "path": "collectors.read_content",
-      "funcName": "run"
+      "className": "ReaderTask"
     },
     "tokenizer": {
       "path": "tokenizer.tokenize_rst",
-      "funcName": "run"
+      "className": "TokenizerTask"
     },
     "ignore_list_matcher": {
       "path": "matchers.ignore_list_matcher",
-      "funcName": "run"
+      "className": "IgnoreListTask"
     },
     "max_occurrence_matcher": {
       "path": "matchers.max_occurrence_matcher",
-      "funcName": "run"
+      "className": "MaxOccurrenceMatcherTask"
     },
     "spell_checker": {
       "path": "matchers.spell_checker",
-      "funcName": "run"
+      "className": "SpellCheckerTask"
     },
     "formatter": {
       "path": "formatters.csv_formatter",
-      "funcName": "run"
+      "className": "CsvFormatterTask"
     }
   }
 }

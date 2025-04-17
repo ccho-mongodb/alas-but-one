@@ -1,4 +1,5 @@
 import os, importlib, json
+from pipeline import Pipeline
 
 def get_stage(module_name, config):
     modulename = config['modules'][module_name]['path']
@@ -10,50 +11,26 @@ def get_stage(module_name, config):
 def main():
     with open('config.json') as f:
         config = json.load(f)
+    
+    settings_config = config['settings']
+    modules_config = config['modules']
 
     try:
-        MAX_OCCURRENCE = config['maxOccurrences']
-        MONGODB_URI = os.environ['ABO_MONGO_URI']
+        for repo_name, repo_config in config['repositories'].items():
+            pipeline = Pipeline(settings_config, repo_config, modules_config)
 
-        REPO_BASE_PATH = config['repo_base_full_path']
-        IGNORE_DB_NAME = config['ignore_list']['database']
-        IGNORE_COLL_NAME = config['ignore_list']['collection']
-        REPOS = config['docs']
+            pipeline.add_task('collector')
+            pipeline.add_task('reader')
+            pipeline.add_task('tokenizer')
+            pipeline.add_task('max_occurrence_matcher')
+            pipeline.add_task('spell_checker')
+            pipeline.add_task("ignore_list_matcher")
+            pipeline.add_task('formatter')
 
-        for repo_config in REPOS.items():
-            # File location setup
-            name = repo_config[0]
-            cfg = repo_config[1]
-            directory = REPO_BASE_PATH + cfg['relative_path'] + cfg['source_dir']
+            directory = settings_config['repo_base_full_path'] + repo_config['relative_path'] + repo_config['source_dir']
+            result = pipeline.run(directory)
 
-            # Read data
-            collector = get_stage('collector', config)
-            reader = get_stage('reader', config)
-
-            # Tokenize data
-            tokenizer = get_stage('tokenizer', config)
-
-            # Filter by max occurrences
-            max_occur_matcher = get_stage('max_occurrence_matcher', config)
-
-            # Add spellcheck data
-            spell_checker = get_stage('spell_checker', config)
-
-            # Add ignore list data
-            ignore_list = get_stage('ignore_list_matcher', config)
-
-            # Format output
-            formatter = get_stage('formatter', config)
-
-            # Run stages
-            # TODO: add pre and post condition dataclasses for each stage
-            candidate_files = collector(directory)
-            content = reader(candidate_files)
-            token_dict = tokenizer(content, cfg)
-            token_dict = max_occur_matcher(token_dict, MAX_OCCURRENCE)
-            spell_checker(token_dict)
-            ignore_list(token_dict, cfg, MONGODB_URI, IGNORE_DB_NAME, IGNORE_COLL_NAME)
-            formatter(token_dict.values(), "%s.csv" % name)
+            print(f"Processed {repo_name}: {result}")
 
     except Exception as e:
         print(e)
