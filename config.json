@@ -1,13 +1,29 @@
 {
   "settings": {
-    "repo_base_full_path": "/home/ccho/dev/",
+    "repo_base_full_path": "/home/user/dev/",
     "maxOccurrences": 1,
+    "confidence_threshold": 0.3,
+
     "MONGODB_URI": "mongodb://localhost:27017",
     "ignore_list": {
       "database": "alas_data",
       "collection": "ignore_words"
+    },
+
+    "ai": {
+      "enabled": false,
+      "model": "claude-haiku-4-5-20251001",
+      "review_confidence_min": 0.3,
+      "review_confidence_max": 0.7,
+      "batch_size": 20
+    },
+
+    "training": {
+      "model_path": "models/classifier.pkl",
+      "min_training_samples": 20
     }
   },
+
   "repositories": {
     "golang": {
       "name": "Golang Driver Docs",
@@ -44,7 +60,10 @@
     "formatter": {
       "path": "formatters.csv_formatter",
       "className": "CsvFormatterTask"
+    },
+    "jsonl_formatter": {
+      "path": "formatters.jsonl_formatter",
+      "className": "JsonlFormatterTask"
     }
   }
 }
-

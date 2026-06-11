@@ -1,0 +1,143 @@
+# CLAUDE.md
+
+Guidance for Claude Code when working in this repository.
+
+## Purpose
+
+`alas-but-one` finds **atomic typo candidates** in MongoDB documentation: words
+that appear at most N times (default: 1) across a corpus of `.rst`/`.txt` files.
+Rare words are surface candidates; human or AI review confirms whether they are
+real typos or legitimate technical terms.
+
+## Commands
+
+```bash
+python alas.py                          # run, JSONL output (default)
+python alas.py --format csv             # CSV output
+python alas.py --repo "Golang Driver Docs"  # single repo
+python alas.py --ai                     # AI review of borderline tokens
+python alas.py --verbose                # per-stage token counts
+python alas.py --parallel               # parallel repo processing
+python alas.py --train labels.jsonl     # train ML model from labeled data
+```
+
+## Architecture
+
+### Pipeline stages (in order)
+
+```
+collector → reader → tokenizer → max_occurrence_matcher
+         → spell_checker → ignore_list_matcher
+         → [ml_predictor] → [ai_reviewer] → formatter
+```
+
+| Stage | Module | Input → Output |
+|---|---|---|
+| collector | `collectors/filter_files.py` | directory → `List[path]` |
+| reader | `collectors/read_content.py` | `List[path]` → `Dict[path, content]` |
+| tokenizer | `tokenizer/tokenize_rst.py` | `Dict[path, content]` → `Dict[word, Token]` |
+| max_occurrence_matcher | `matchers/max_occurrence_matcher.py` | filters to ≤ maxOccurrences |
+| spell_checker | `matchers/spell_checker.py` | sets `token.misspelled` + `token.confidence` |
+| ignore_list_matcher | `matchers/ignore_list_matcher.py` | sets `token.ignore` from MongoDB |
+| ml_predictor | `training/predictor.py` | overrides `token.confidence` if trained model exists |
+| ai_reviewer | `ai/reviewer.py` | sends borderline tokens to Claude; updates confidence + suggestion |
+| jsonl_formatter | `formatters/jsonl_formatter.py` | writes `<repo>.jsonl` sorted by confidence desc |
+| csv_formatter | `formatters/csv_formatter.py` | writes `<repo>.csv` (backward compat) |
+
+### Key types
+
+**`Token`** (`models/token.py`):
+- `text`: the word
+- `repo`: repo display name
+- `locations`: `List[TokenLocation]` (file + line number)
+- `misspelled`: bool from pyspellchecker
+- `confidence`: float 0.0–1.0 (likelihood of being a real typo)
+- `suggestion`: best spelling correction or None
+- `ignore`: 'Y'/'N' from MongoDB ignore list
+- `label`: 'true_positive' | 'false_positive' | None (set by human reviewer)
+- `ai_reviewed`: bool
+- `ai_comment`: string from AI reviewer
+
+### Confidence scoring (`matchers/confidence_scorer.py`)
+
+Scores are 0.0–1.0 (higher = more likely a real typo):
+
+| Signal | Effect |
+|---|---|
+| Misspelled, edit distance 1 | +0.85 base |
+| Misspelled, edit distance 2 | +0.60 base |
+| Misspelled, no correction found | +0.40 base |
+| Correctly spelled | 0.05 base |
+| Word ≤ 2 chars | × 0.4 |
+| Contains digits | × 0.5 |
+| ALL CAPS | × 0.5 |
+| Length > 20 chars | × 0.6 |
+
+### ML training loop
+
+1. Run the tool to generate `<repo>.jsonl`
+2. Open the file and set `"label"` field: `"true_positive"` or `"false_positive"`
+3. Run `python alas.py --train <repo>.jsonl` to fit a logistic regression classifier
+4. Subsequent runs use `models/classifier.pkl` to override heuristic confidence scores
+5. Re-label and re-train as the model improves
+
+Features used: `is_misspelled`, `spell_confidence`, `edit_distance_norm`,
+`word_length_norm`, `has_digits`, `is_all_upper`, `is_short`
+
+### AI reviewer (`ai/reviewer.py`)
+
+Only runs when `--ai` flag is passed (or `"ai": {"enabled": true}` in config).
+Targets tokens with `confidence` in `[review_confidence_min, review_confidence_max]`
+(defaults: 0.3–0.7). Sends batches to Claude (`claude-haiku-4-5-20251001` by default)
+and updates `token.confidence`, `token.suggestion`, `token.ai_comment`.
+
+Requires `ANTHROPIC_API_KEY` environment variable.
+
+### Pipeline hooks (`ai/hooks.py`)
+
+Register pre/post callbacks for any stage:
+
+```python
+from ai.hooks import default_hooks
+
+@default_hooks.post_stage('spell_checker')
+def my_hook(stage_name, data):
+    # data is the Dict[word, Token] after spell check
+    return data  # must return data
+```
+
+Pre/post repo hooks also available via `@default_hooks.pre_repo` / `@default_hooks.post_repo`.
+
+## Adding a new matcher or formatter
+
+1. Create a new file in `matchers/` or `formatters/`
+2. Subclass `BaseTask` and implement `run()`
+3. Register it in `config.json` under `"modules"`
+4. Add it to the pipeline in `alas.py`
+
+## Environment variables
+
+| Variable | Required for |
+|---|---|
+| `ABO_MONGO_URI` | ignore list (overrides config MONGODB_URI) |
+| `ANTHROPIC_API_KEY` | `--ai` flag |
+
+## JSONL output format
+
+```jsonc
+{
+  "word": "retreive",
+  "repo": "Golang Driver Docs",
+  "locations": [{"file": "/path/to/file.rst", "line": 42}],
+  "num_occurrences": 1,
+  "misspelled": true,
+  "confidence": 0.85,       // 0.0–1.0, higher = more likely a real typo
+  "suggestion": "retrieve",
+  "ignore": false,
+  "label": null,            // set to "true_positive"/"false_positive" for training
+  "ai_reviewed": false,
+  "ai_comment": null
+}
+```
+
+Records are sorted by `confidence` descending — highest-priority candidates first.

@@ -1,64 +1,122 @@
-import os, json, re, collections, csv, sys
+"""
+Persist ignore-list changes from a reviewed CSV or JSONL output file to MongoDB.
+
+Usage:
+  python save_ignore_list.py output.jsonl
+  python save_ignore_list.py output.csv
+
+For JSONL: set "ignore": true/false on each record.
+For CSV:   set the 'ignore' column to 'Y'/'N'.
+
+Requires ABO_MONGO_URI environment variable.
+"""
+import collections
+import csv
+import json
+import os
+import re
+import sys
 from pymongo import MongoClient, UpdateOne
 
-def get_ignore_lists_and_collection():
-    connection_uri = os.environ['ABO_MONGO_URI']
+
+def _get_collection():
+    uri = os.environ.get('ABO_MONGO_URI')
+    if not uri:
+        sys.exit("ABO_MONGO_URI environment variable is not set.")
 
     with open('config.json') as f:
         config = json.load(f)
 
-    dbName = config['ignore_list']['database']
-    collName = config['ignore_list']['collection']
+    db_name = config['settings']['ignore_list']['database']
+    coll_name = config['settings']['ignore_list']['collection']
+    return MongoClient(uri)[db_name][coll_name]
 
-    coll = MongoClient(connection_uri)[dbName][collName]
 
-    ignore_dict = {}
-    results = coll.find()
-    for result in results:
-        ignore_dict[result['repo_name']] = result['words']
+def _load_csv(path: str) -> dict:
+    """Returns {repo_name: {word: ignore_bool}}"""
+    update_dict = collections.defaultdict(dict)
+    with open(path) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            ignore_val = row.get('ignore', '')
+            word = row.get('word', '').lower()
+            repo = row.get('repo', '')
+            if not word or not repo:
+                continue
+            if re.search(r'[yY]', ignore_val):
+                update_dict[repo][word] = True
+            elif re.search(r'[nN]', ignore_val):
+                update_dict[repo][word] = False
+    return update_dict
 
-    return ignore_dict, coll
+
+def _load_jsonl(path: str) -> dict:
+    """Returns {repo_name: {word: ignore_bool}}"""
+    update_dict = collections.defaultdict(dict)
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            word = record.get('word', '').lower()
+            repo = record.get('repo', '')
+            ignore = record.get('ignore')
+            if not word or not repo or ignore is None:
+                continue
+            update_dict[repo][word] = bool(ignore)
+    return update_dict
+
+
+def _apply_updates(update_dict: dict) -> None:
+    if not update_dict:
+        print("No updates to apply.")
+        return
+
+    coll = _get_collection()
+    ops = []
+
+    for repo_name, word_map in update_dict.items():
+        add_words = [w for w, v in word_map.items() if v]
+        remove_words = [w for w, v in word_map.items() if not v]
+
+        if add_words:
+            ops.append(UpdateOne(
+                {'repo_name': repo_name},
+                {'$addToSet': {'words': {'$each': add_words}}},
+                upsert=True,
+            ))
+        if remove_words:
+            ops.append(UpdateOne(
+                {'repo_name': repo_name},
+                {'$pullAll': {'words': remove_words}},
+            ))
+
+    if ops:
+        result = coll.bulk_write(ops)
+        print(
+            f"Applied {len(ops)} operations "
+            f"({result.upserted_count} upserted, {result.modified_count} modified)."
+        )
+    else:
+        print("No changes to write.")
+
 
 def main():
+    if len(sys.argv) < 2:
+        sys.exit("Usage: python save_ignore_list.py <output.jsonl|output.csv>")
 
-    csv_file = sys.argv[1]
-    if len(sys.argv) < 1:
-        sys.exit("Please provide an input filename.")
+    input_file = sys.argv[1]
 
-    update_dict = collections.defaultdict(set)
+    if input_file.endswith('.jsonl'):
+        update_dict = _load_jsonl(input_file)
+    elif input_file.endswith('.csv'):
+        update_dict = _load_csv(input_file)
+    else:
+        sys.exit("Input file must be .jsonl or .csv")
 
-    with open(csv_file) as file:
-        reader = csv.DictReader(file)
+    _apply_updates(update_dict)
 
-        for row in reader:
-            ignore_val = row['ignore']
-            if ignore_val is not None:
-                if re.search('[yY]', ignore_val):
-                    word_tuple = tuple((row['word'].lower(), 1))
-                    update_dict[row['repo']].add(word_tuple)
-                elif re.search('[nN]', ignore_val):
-                    word_tuple = tuple((row['word'].lower(), 0))
-                    update_dict[row['repo']].add(word_tuple)
 
-    if len(update_dict) > 0:
-        add_words = []
-        remove_words = []
-
-        for repo_name, updates in update_dict.items():
-            for update in updates:
-                add_words = [ x[0] for x in updates if x[1] == 1 ]
-                remove_words = [ x[0] for x in updates if x[1] == 0 ]
-
-        ignore_dict, ignore_coll = get_ignore_lists_and_collection()
-        update_ops = []
-        for repo_name, update_tuple in update_dict.items():
-            if len(add_words) > 0:
-                update_ops.append(UpdateOne({ 'repo_name': repo_name }, { '$addToSet': {'words': { '$each': add_words }}}, upsert=True ))
-            if len(remove_words) > 0:
-                update_ops.append(UpdateOne({ 'repo_name': repo_name }, { '$pullAll': {'words': remove_words }} ))
-
-        if len(update_ops) > 1:
-            ignore_coll.bulk_write(update_ops)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
