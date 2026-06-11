@@ -4,7 +4,7 @@ This app identifies atomic typo candidates in text files by surfacing words
 that occur a user-definable maximum number of times. Words that seem out of
 place can be quickly checked in the location in which they appear.
 
-This app is designed for use in MongoDB documentation repositories.
+This app is designed for use in documentation repositories.
 
 # Installation
 

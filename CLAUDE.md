@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Purpose
 
-`alas-but-one` finds **atomic typo candidates** in MongoDB documentation: words
+`alas-but-one` finds **atomic typo candidates** in documentation: words
 that appear at most N times (default: 1) across a corpus of `.rst`/`.txt` files.
 Rare words are surface candidates; human or AI review confirms whether they are
 real typos or legitimate technical terms.
@@ -38,7 +38,7 @@ collector → reader → tokenizer → max_occurrence_matcher
 | tokenizer | `tokenizer/tokenize_rst.py` | `Dict[path, content]` → `Dict[word, Token]` |
 | max_occurrence_matcher | `matchers/max_occurrence_matcher.py` | filters to ≤ maxOccurrences |
 | spell_checker | `matchers/spell_checker.py` | sets `token.misspelled` + `token.confidence` |
-| ignore_list_matcher | `matchers/ignore_list_matcher.py` | sets `token.ignore` from MongoDB |
+| ignore_list_matcher | `matchers/ignore_list_matcher.py` | sets `token.ignore` from ignore list store |
 | ml_predictor | `training/predictor.py` | overrides `token.confidence` if trained model exists |
 | ai_reviewer | `ai/reviewer.py` | sends borderline tokens to Claude; updates confidence + suggestion |
 | jsonl_formatter | `formatters/jsonl_formatter.py` | writes `<repo>.jsonl` sorted by confidence desc |
@@ -53,7 +53,7 @@ collector → reader → tokenizer → max_occurrence_matcher
 - `misspelled`: bool from pyspellchecker
 - `confidence`: float 0.0–1.0 (likelihood of being a real typo)
 - `suggestion`: best spelling correction or None
-- `ignore`: 'Y'/'N' from MongoDB ignore list
+- `ignore`: 'Y'/'N' from ignore list
 - `label`: 'true_positive' | 'false_positive' | None (set by human reviewer)
 - `ai_reviewed`: bool
 - `ai_comment`: string from AI reviewer

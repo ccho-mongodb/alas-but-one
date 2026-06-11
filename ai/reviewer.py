@@ -5,13 +5,13 @@ from models.token import Token
 
 
 _SYSTEM_PROMPT = (
-    "You are a technical documentation quality reviewer specializing in MongoDB docs. "
+    "You are a technical documentation quality reviewer. "
     "Your task is to classify rare words as typos or legitimate technical terms. "
     "Respond ONLY with a JSON array — no prose, no markdown."
 )
 
 _USER_TEMPLATE = """\
-These words each appear at most {max_occ} time(s) in MongoDB documentation. \
+These words each appear at most {max_occ} time(s) in documentation. \
 Some may be typos; others may be legitimate technical terms, acronyms, or jargon.
 
 For each word, judge whether it is a typo that should be corrected.

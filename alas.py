@@ -1,5 +1,5 @@
 """
-alas-but-one — atomic typo candidate finder for MongoDB documentation.
+alas-but-one — atomic typo candidate finder for documentation repositories.
 
 Usage:
   python alas.py                               # run all repos, JSONL output
