@@ -2,6 +2,8 @@ from typing import Dict
 from tasks.base_task import BaseTask
 from models.token import Token
 from spellchecker import SpellChecker
+from matchers.confidence_scorer import compute_confidence
+
 
 class SpellCheckerTask(BaseTask):
     def __init__(self, settings_config, repo_config):
@@ -10,10 +12,13 @@ class SpellCheckerTask(BaseTask):
 
     def run(self, token_dict: Dict[str, Token]) -> Dict[str, Token]:
         validated_tokens = self.validate_input(token_dict)
-        misspelled = self.checker.unknown(validated_tokens.keys())
+        misspelled_set = self.checker.unknown(validated_tokens.keys())
 
         for word, token in validated_tokens.items():
-            token.misspelled = word in misspelled
+            token.misspelled = word in misspelled_set
+            token.confidence, token.suggestion = compute_confidence(
+                word, token.misspelled, self.checker
+            )
 
         return self.validate_output(validated_tokens)
 
