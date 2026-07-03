@@ -147,3 +147,15 @@ def my_hook(stage_name, data):
     # data is Dict[word, Token] after spell check
     return data  # must return data
 ```
+
+## Known Bugs
+
+This project is no longer under active development. The following issues are documented but will not be fixed here:
+
+1. **Case signal is destroyed before scoring.** The tokenizer lowercases all content (`tokenizer/tokenize_rst.py`), so the ALL-CAPS acronym penalty in `matchers/confidence_scorer.py` and the `is_all_upper` ML feature in `training/features.py` can never fire. Acronyms (HTTP, JSON, SDK) score as full-strength typo candidates.
+
+2. **Line numbers in output are off by one.** The tokenizer stores 0-based line indices, so every `"line"` value in the JSONL/CSV output points one line above the actual occurrence.
+
+3. **Ignore-list reads and writes can target different databases.** The pipeline reads the MongoDB URI from `config.json` (`MONGODB_URI`), while `save_ignore_list.py` reads the `ABO_MONGO_URI` environment variable. If they differ, ignore-list updates silently never take effect on subsequent runs.
+
+4. **The tokenizer is not format-aware.** Despite the name `tokenize_rst.py`, it applies a plain word regex to raw file content. Code blocks, inline literals, RST directives/roles, and URLs are all tokenized as prose — the largest source of false-positive candidates.
